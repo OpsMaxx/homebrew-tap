@@ -5,15 +5,15 @@ client, SFTP browser, database manager, secrets vault and MCP gateway for AI
 agents.
 
 ```bash
-brew tap opsmaxx/tap
-brew install --cask opsmaxx
-```
-
-Or in one line:
-
-```bash
+brew trust opsmaxx/tap
 brew install --cask opsmaxx/tap/opsmaxx
 ```
+
+The `brew trust` step is not optional. Homebrew refuses to load casks from a
+third-party tap until you say you trust it, and without it the install stops
+with `Refusing to load cask ... from untrusted tap`. That check is Homebrew
+protecting you from arbitrary Ruby in someone else's repository; the cask it
+guards is [six lines of metadata](Casks/opsmaxx.rb) you can read first.
 
 ## Why a tap rather than homebrew-cask
 

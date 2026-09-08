@@ -5,8 +5,7 @@ cask "opsmaxx" do
   sha256 arm:   "1346c8a86e07862ee37130b02b3b3d65b2dbc57526df626310bbae3edc9a0752",
          intel: "d8be9249dbc97e82db6974fd190b73fa62a6da59d81ccc0fba9d95706d0dc558"
 
-  url "https://github.com/OpsMaxx/OpsMaxx/releases/download/v#{version}/OpsMaxx-#{version}-#{arch}.dmg",
-      verified: "github.com/OpsMaxx/OpsMaxx/"
+  url "https://github.com/OpsMaxx/OpsMaxx/releases/download/v#{version}/OpsMaxx-#{version}-#{arch}.dmg"
   name "OpsMaxx"
   desc "SSH client, SFTP browser, database manager, secrets vault and MCP gateway"
   homepage "https://opsmaxx.dev/"
@@ -21,7 +20,7 @@ cask "opsmaxx" do
   # what every unsigned cask does, and it is the same thing the app's own
   # instructions ask the user to do by hand.
   auto_updates false
-  depends_on macos: ">= :big_sur"
+  depends_on macos: :big_sur
 
   app "OpsMaxx.app"
 
