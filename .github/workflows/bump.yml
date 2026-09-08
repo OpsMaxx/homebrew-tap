@@ -1,0 +1,66 @@
+# Keeps the cask in step with the latest OpsMaxx release.
+#
+# A cask that lags is worse than no cask: `brew install` hands someone an old
+# build with no hint that a newer one exists. This reads the release, takes the
+# SHA-256 of both macOS builds from the checksum table the release workflow
+# publishes, and commits only if something actually changed.
+name: Bump cask
+
+on:
+  schedule:
+    - cron: '43 7 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [opsmaxx-release]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update the cask to the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          TAG=$(gh release view --repo OpsMaxx/OpsMaxx --json tagName --jq .tagName)
+          VERSION="${TAG#v}"
+          CURRENT=$(grep -oE 'version "[^"]+"' Casks/opsmaxx.rb | head -1 | cut -d'"' -f2)
+
+          if [ "$VERSION" = "$CURRENT" ]; then
+            echo "Cask is already on $VERSION."
+            exit 0
+          fi
+
+          NOTES=$(gh release view "$TAG" --repo OpsMaxx/OpsMaxx --json body --jq .body)
+          hash_for() {
+            printf '%s\n' "$NOTES" | grep -F "OpsMaxx-$VERSION-$1" | grep -oE '[a-f0-9]{64}' | head -1
+          }
+
+          ARM=$(hash_for "arm64.dmg")
+          INTEL=$(hash_for "x64.dmg")
+
+          # A missing hash means the notes changed shape. Stop rather than
+          # commit a cask that cannot verify what it downloads.
+          if [ ${#ARM} -ne 64 ] || [ ${#INTEL} -ne 64 ]; then
+            echo "::error::Could not read both SHA-256 values for $VERSION from the release notes."
+            exit 1
+          fi
+
+          sed -i "s/version \"$CURRENT\"/version \"$VERSION\"/" Casks/opsmaxx.rb
+          sed -i "s/arm:   \"[a-f0-9]\{64\}\"/arm:   \"$ARM\"/" Casks/opsmaxx.rb
+          sed -i "s/intel: \"[a-f0-9]\{64\}\"/intel: \"$INTEL\"/" Casks/opsmaxx.rb
+
+          ruby -c Casks/opsmaxx.rb
+
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add Casks/opsmaxx.rb
+          git commit -m "Bump the cask to $VERSION"
+          git push
+          echo "Bumped $CURRENT -> $VERSION."
