@@ -1,9 +1,9 @@
 cask "opsmaxx" do
   arch arm: "arm64", intel: "x64"
 
-  version "0.41.3"
-  sha256 arm:   "ac71d1112f11f0ee796cf57714626a577923d67484d2c0fd4f8423c744c693db",
-         intel: "6ca36a67503b0ac3235cb06f4aae3f1f42fdfd26f02445a33c595f3c8ad35d9c"
+  version "0.42.0"
+  sha256 arm:   "fd15eb846f698fbc39344b9f172f588092b6f53e5a107f743df00f97ed0992ce",
+         intel: "e733df8fa892a67ec0ed9d92cba34178269abaa047b5bf693d3ca7be0d077124"
 
   url "https://github.com/OpsMaxx/OpsMaxx/releases/download/v#{version}/OpsMaxx-#{version}-#{arch}.dmg"
   name "OpsMaxx"
